@@ -1,0 +1,20 @@
+{
+    "name": "noobphp/validator",
+    "description": "simple validator",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "pxb",
+            "email": "768984347@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.6.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Noob\\Validator\\": "src/"
+        }
+    }
+}
