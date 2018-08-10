@@ -2,8 +2,8 @@
 namespace Noob\Validator;
 
 use Closure;
-use Validator\Lib\ValidatorMessage;
-use Validator\Lib\ValidatorRule;
+use Noob\Validator\Lib\ValidatorMessage;
+use Noob\Validator\Lib\ValidatorRule;
 
 /**
  * Created by PhpStorm.
