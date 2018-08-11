@@ -11,5 +11,17 @@ use Noob\Validator\Validator;
 
 require ("../vendor/autoload.php");
 
-$validate = new Validator([''],[],[]);
-var_dump($validate);
+$validate = new Validator(['a' => '','b' => 'abc'],[
+    'a' => 'required|number',
+    'b' => 'required|number'
+], [
+    'a.required' => 'a is required',
+    'a.number' => 'a is number',
+    'b.required' => 'b is required',
+    'b.number' => 'b is number'
+]);
+
+var_dump($validate->fails());
+
+var_dump($validate->firstError());
+var_dump($validate->errors());

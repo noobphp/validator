@@ -28,12 +28,11 @@ use Noob\Validator\Lib\ValidatorRule;
  */
 class Validator
 {
-//    public $data; //要验证的数据
     public $validate; //验证数据的规则
     public $error_message; //验证失败的错误信息
     private $errors; //验证失败返回的完整错误信息
-    public $rule_obj; //内置规则对象
-    public $message_obj; //内置错误信息对象
+    private static $rule_obj; //内置规则对象
+    private static $message_obj; //内置错误信息对象
 
     /**
      * Validator constructor.
@@ -42,20 +41,15 @@ class Validator
      * @param array $error_message
      * @param Closure|null $callback
      */
-    public function __construct(array $data, array $validate = [], array $error_message = [], Closure $callback = null)
+    public function __construct(array $data, array $validate = [], array $error_message = [], ValidatorRule $rule_obj = null, ValidatorMessage $message_obj = null)
     {
-//        $this->data = $data;
         $this->validate = $validate;
         //初始化错误信息数组
         $this->error_message = $this->parseErrorMessage($error_message);
 
-        if ($callback) {
-            $callback($this);
-        }
-
         //初始化依赖对象
-        $this->initValidatorObj();
-        $this->rule_obj->setValidateData($data);
+        $this->initValidatorObj($rule_obj, $message_obj);
+        call_user_func([self::$rule_obj, 'setValidateData'], $data);
         //验证
         $this->validate();
     }
@@ -66,7 +60,7 @@ class Validator
      */
     public function fails()
     {
-        return !empty($this->errors());
+        return ! empty($this->errors());
     }
 
     /**
@@ -76,6 +70,15 @@ class Validator
     public function errors()
     {
         return $this->errors;
+    }
+
+    /**
+     * 返回第一条错误字符串
+     * @return mixed
+     */
+    public function firstError()
+    {
+        return array_shift(array_shift($this->errors()));
     }
 
     /**
@@ -102,18 +105,21 @@ class Validator
     {
         if (! empty($this->validate)) {
             foreach ($this->validate as $key => $item) {
+                //获取要验证的规则名
                 $validate_arr = explode($this->getValidateExplodeSign(), $item);
                 foreach ($validate_arr as $validate_func_name) {
-                    $param[] = $key;
+                    $param = [$key];
+                    //如果有参数分隔符再次进行分隔并添加参数
                     if (strpos($validate_func_name, $this->getMethodParamSign())) {
                         list($validate_func_name, $method_param) = explode($this->getMethodParamSign(), $validate_func_name);
                         array_push($param, $method_param);
                     }
-                    $suc = call_user_func_array([$this->rule_obj, $validate_func_name], $param);
+                    //调用rule类的方法（规则名即是方法名）将字符串参数传入
+                    $suc = call_user_func_array([self::$rule_obj, $validate_func_name], $param);
                     if (! $suc) {
+                        //如果验证失败添加错误信息
                         $this->errors[$key][$validate_func_name] = $this->getErrorMessage($key, $validate_func_name);
                     }
-                    $param = [];
                 }
             }
         }
@@ -172,19 +178,19 @@ class Validator
      */
     private function getDefaultErrorMessage($key, $rule)
     {
-        return $this->message_obj->$rule($key);
+        return call_user_func([self::$message_obj, $rule], $key);
     }
 
     /**
      * 初始化依赖的对象
      */
-    private function initValidatorObj()
+    private function initValidatorObj($rule_obj, $message_obj)
     {
-        if (! $this->message_obj) {
-            $this->message_obj = new ValidatorMessage();
+        if (! self::$message_obj) {
+           self::$message_obj = $message_obj ?: new ValidatorMessage();
         }
-        if (! $this->rule_obj) {
-            $this->rule_obj = new ValidatorRule();
+        if (! self::$rule_obj) {
+            self::$rule_obj = $rule_obj ?: new ValidatorRule();
         }
     }
 }
