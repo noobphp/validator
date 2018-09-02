@@ -1,8 +1,6 @@
 <?php
 namespace Noob\Validator\Lib;
 
-use Closure;
-
 /**
  * Created by PhpStorm.
  * User: pxb
@@ -10,17 +8,8 @@ use Closure;
  * Time: 16:55
  */
 
-class ValidatorRule
+class ValidatorRule extends AbstractValidatorRule
 {
-    protected $rules = []; //自定义规则
-    protected $data = [];
-
-    public function setValidateData(array $data)
-    {
-        $this->data = $data;
-        return $this;
-    }
-
     /**
      * 验证数组元素不能为空或者不存在
      * @param $key
@@ -29,32 +18,6 @@ class ValidatorRule
     public function required($key)
     {
         return ! empty($this->data[$key]);
-    }
-
-    /**
-     * 添加自定义规则
-     * @param array $rules
-     * @return bool
-     */
-    public function addRule(array $rules)
-    {
-        $this->rules = array_merge($this->rules, $rules);
-        return true;
-    }
-
-    /**
-     * @param $name
-     * @param $arguments
-     * @return bool
-     */
-    public function __call($name, $arguments)
-    {
-        // TODO: Implement __call() method.
-        //如果满足自定义规则
-        if (isset($this->rules[$name]) && $this->rules[$name] instanceof Closure) {
-            return $this->rules[$name]($arguments[0]);
-        }
-        return true;
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 use Noob\Validator\Validator;
-
+define('ROOT_DIR', dirname(__DIR__));
 /**
  * Created by PhpStorm.
  * User: pxb
@@ -9,16 +9,18 @@ use Noob\Validator\Validator;
  * Time: 下午10:21
  */
 
-require ("../vendor/autoload.php");
+require (ROOT_DIR."/vendor/autoload.php");
 
 $validate = new Validator(['a' => '','b' => 'abc'],[
     'a' => 'required|number',
-    'b' => 'required|number'
+    'b' => 'required|number',
+    'c' => 'required'
 ], [
-    'a.required' => 'a is required',
-    'a.number' => 'a is number',
-    'b.required' => 'b is required',
-    'b.number' => 'b is number'
+    'a.required' => 'a must required',
+    'a.number' => 'a must number',
+    'b.required' => 'b must required',
+    'b.number' => 'b must number',
+    'c.required' => 'c must required'
 ]);
 
 var_dump($validate->fails());
